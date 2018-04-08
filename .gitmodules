@@ -1,3 +1,6 @@
 [submodule "libraries/fc"]
 	path = libraries/fc
 	url = https://github.com/orgeborderlessvip/borderless-fc
+[submodule "libraries/cli"]
+	path = libraries/cli
+	url = https://github.com/chouheiwa/cli.git
