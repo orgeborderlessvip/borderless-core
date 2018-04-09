@@ -176,6 +176,15 @@ struct wallet_data
          return true;
       }
    }
+    void erase_account(const account_object& acct)
+    {
+        auto& idx = my_accounts.get<by_id>();
+        auto itr = idx.find(acct.get_id());
+        if( itr != idx.end() )
+        {
+            idx.erase(itr);
+        }
+    }
 
    /** encrypted keys */
    vector<char>              cipher_keys;
@@ -715,7 +724,14 @@ class wallet_api
        * @returns the signed transaction upgrading the account
        */
       signed_transaction upgrade_account(string name, bool broadcast);
-
+      /**
+       *  Change an account key
+       *  This can change key to an account
+       *
+       */
+      signed_transaction change_account_key(string account,
+                                            string owner_key,
+                                            bool broadcast = false);
       /** Creates a new account and registers it on the blockchain.
        *
        * @todo why no referrer_percent here?
@@ -1365,7 +1381,10 @@ class wallet_api
                                            string committee_member,
                                            bool approve,
                                            bool broadcast = false);
-
+      signed_transaction vote_for_committee_members(string voting_account,
+                                                    vector <string> committee_members,
+                                                    bool approve,
+                                                    bool broadcast = false );
       /** Vote for a given witness.
        *
        * An account can publish a list of all witnesses they approve of.  This 
@@ -1387,7 +1406,10 @@ class wallet_api
                                           string witness,
                                           bool approve,
                                           bool broadcast = false);
-
+      signed_transaction vote_for_witnesses(string voting_account,
+                                            vector<string> witnesses,
+                                            bool approve,
+                                            bool broadcast = false);
       /** Set the voting proxy for an account.
        *
        * If a user does not wish to take an active part in voting, they can choose
@@ -1646,6 +1668,7 @@ FC_API( graphene::wallet::wallet_api,
         (transfer2)
         (get_transaction_id)
         (create_asset)
+        (change_account_key)
         (update_asset)
         (update_bitasset)
         (update_asset_feed_producers)
@@ -1670,7 +1693,9 @@ FC_API( graphene::wallet::wallet_api,
         (get_vesting_balances)
         (withdraw_vesting)
         (vote_for_committee_member)
+        (vote_for_committee_members)
         (vote_for_witness)
+        (vote_for_witnesses)
         (set_voting_proxy)
         (set_desired_witness_and_committee_member_count)
         (get_account)
